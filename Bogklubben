@@ -1,0 +1,59 @@
+//KODE:
+
+explain analyze select * from author, books
+ where author.bookid = books.isbn13
+ and books.isbn like '%345%'
+ and author.author ilike '%col%'
+ and isbn13 like '%97%'
+
+ALTER TABLE author
+ADD PRIMARY KEY (id);
+
+ALTER TABLE books
+ADD PRIMARY KEY (isbn13);
+
+ALTER TABLE author
+ADD CONSTRAINT fk_author_books
+FOREIGN KEY (bookid)
+REFERENCES books (isbn13);
+
+
+CREATE INDEX bk_index on books (isbn);
+CREATE INDEX au_index on author (author);
+
+drop index bk_index;
+drop index au_index;
+
+CREATE UNIQUE INDEX bk_unique_index on books (isbn);
+CREATE UNIQUE INDEX au_unique_index on author (author);
+
+drop index bk_unique_index;
+drop index au_unique_index;
+
+
+SELECT pg_size_pretty (pg_indexes_size('author'));
+
+CREATE INDEX au_hash_index ON author USING HASH(author);
+
+
+
+//RESULTATER:
+
+Opgave 1:
+ Det tog 369 -> 400 msec (op til flere forsøg)
+ 
+Opgave 2:
+ Det tog 350 -> 380 msec (op til flere forsøg)
+ 
+Opgave 3:
+ A:
+  Det tog 350 -> 360 msec (op til flere forsøg)
+ B:
+  Det tog 350 -> 360 msec (op til flere forsøg)
+  Kunne dog ikke få lov til at lave en unique index på author, da der er flere steder hvor der står det samme.
+
+Opgave 4:
+ A:
+  Author tabellen fylder 15 MB
+ B:
+  Det fylder nu 38 MB
